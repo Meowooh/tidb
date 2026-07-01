@@ -58,7 +58,7 @@ type UnionExec struct {
 	Concurrency int
 	childIDChan chan int
 
-	stopFetchData atomic.Value
+	stopFetchData atomic.Bool
 
 	finished      chan struct{}
 	resourcePools []chan *chunk.Chunk
@@ -156,7 +156,7 @@ func (e *UnionExec) resultPuller(ctx context.Context, workerID int) {
 			atomic.AddInt32(&e.childInFlightForTest, 1)
 		})
 		for {
-			if e.stopFetchData.Load().(bool) {
+			if e.stopFetchData.Load() {
 				return
 			}
 			select {
